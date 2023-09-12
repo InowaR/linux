@@ -36,3 +36,7 @@
 	groups
 	sudo usermod -a -G my_group mike
 	su mike
+	sudo usermod -G mike,adm,cdrom,sudo,dip,plugdev,lpadmin,lxd,sambashare,vboxsf mike
+	sudo usermod -aG root mike
+	sudo visudo
+	%sudo   ALL=(ALL:ALL) NOPASSWD:ALL

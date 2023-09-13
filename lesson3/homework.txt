@@ -31,12 +31,49 @@
 добавить пользователя в группу, не меняя основной;
 • Создать пользователя с правами суперпользователя. Сделать так, чтобы sudo не требовал пароль для выполнения команд.
 
-	sudo addgroup groupname
+	sudo addgroup my_group
 	sudo groupadd my_group
 	groups
-	sudo usermod -a -G my_group mike
+	sudo usermod -aG my_group mike
 	su mike
+	sudo deluser my_group mike
 	sudo usermod -G mike,adm,cdrom,sudo,dip,plugdev,lpadmin,lxd,sambashare,vboxsf mike
 	sudo usermod -aG root mike
 	sudo visudo
 	%sudo   ALL=(ALL:ALL) NOPASSWD:ALL
+	
+Дополнительные (необязательные) задания
+
+• Используя дополнительные материалы, выдать одному из созданных пользователей право на выполнение ряда команд, требующих прав суперпользователя (команды выбираем на своё усмотрение).
+
+	sudo passwd root
+	sudo addgroup apt_users
+	%apt_users   ALL=(ALL:ALL) /usr/bin/apt
+
+• Создать группу developer и нескольких пользователей, входящих в неё.
+Создать директорию для совместной работы.
+Сделать так, чтобы созданные одними пользователями файлы могли изменять другие пользователи этой группы.
+
+	sudo adduser user1
+	sudo adduser user2	
+	groupadd developer
+	usermod -aG developer user1
+	usermod -aG developer user2
+	mkdir dev/
+	chown user1:developer dev/
+	chmod -R 770 dev/
+
+• Создать в директории для совместной работы поддиректорию для обмена файлами, но чтобы удалять файлы могли только их создатели.
+
+	mkdir shared
+	chmod -R 1770 shared
+
+• Создать директорию, в которой есть несколько файлов.
+Сделать так, чтобы открыть файлы можно было, только зная имя файла, а через ls список файлов посмотреть было нельзя.
+	
+	mkdir new_dir
+	cd new_dir
+	touch file1 file2 file3
+	cd ..
+	chmod -r new_dir
+	chmod +x new_dir

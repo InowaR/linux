@@ -54,6 +54,8 @@
 Создать директорию для совместной работы.
 Сделать так, чтобы созданные одними пользователями файлы могли изменять другие пользователи этой группы.
 
+	cat /etc/passwd
+	cat /etc/shadow
 	sudo adduser user1
 	sudo adduser user2	
 	groupadd developer

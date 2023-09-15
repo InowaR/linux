@@ -62,8 +62,16 @@ http://nginx.org/packages/ubuntu `lsb_release -cs` nginx"     | sudo tee /etc/ap
 • Добавить задачу для выполнения каждые 3 минуты (создание директории, запись в файл).
 
 	crontab -e
+	*/3 * * * * mkdir /home/georgiy/test1; touch /home/georgiy/test1/file; echo "hello" >> /home/georgiy/test1/file
 	watch -n 0.5 ls
 
 •* Подключить PPA-репозиторий на выбор. Установить из него пакет. Удалить PPA из системы.
 
+	sudo add-apt-repository ppa:shutter/ppa
+	sudo apt install shutter
+	sudo add-apt-repository -r ppa:linuxuprising/shutter
+
 •* Создать задачу резервного копирования (tar) домашнего каталога пользователя. Реализовать с использованием пользовательских crontab-файлов.
+
+	crontab -e
+	0 17 */3 * * tar -cvzf /run/media/georgiy/archive.tar.gz /home

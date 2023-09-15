@@ -41,11 +41,18 @@ http://nginx.org/packages/ubuntu `lsb_release -cs` nginx"     | sudo tee /etc/ap
 
 
 • Установить и удалить deb-пакет с помощью dpkg.
-
-	sudo dpkg -i virtualbox-7.0_7.0.10-158379~Ubuntu~jammy_amd64.deb
-	sudo apt -f install
+	
+	cd ~/Загрузки
+	sudo apt install ./virtualbox-7.0_7.0.10-158379~Ubuntu~jammy_amd64.deb
 	sudo apt purge virtualbox-7.0
 	sudo apt autoremove
+	
+	cd ~/Загрузки
+	sudo dpkg -i Yandex.deb
+	sudo apt --fix-broken install
+	find / -name yandex
+	sudo dpkg -S /opt/yandex/
+	sudo dpkg --purge yandex-browser-stable
 
 • Установить и удалить snap-пакет.
 

@@ -5,22 +5,103 @@
 
 • Установить Nginx и настроить его на работу с PHP-FPM.
 
-	php-fpm на лекции!
-
 	sudo apt install nginx -y
 	sudo nano /etc/nginx/sites-enabled/default
 	sudo nginx -t
 	cd /var/www/html/ - стартовая страница nginx, apache2
 
+	#php-fpm
+	
+	apt-get install php7.3-fpm
+	systemctl status php7.3-fpm
+	groupadd wordpress_user
+	useradd -g wordpress_user wordpress_user
+	cd /etc/php/7.3/fpm/pool.d
+	nano wordpress_pool.conf
+	
+	#добавить
+	
+	[wordpress_site]
+	user = wordpress_user
+	group = wordpress_user
+	listen = /var/run/php7.2-fpm-wordpress-site.sock
+	listen.owner = www-data
+	listen.group = www-data
+	php_admin_value[disable_functions] = exec,passthru,shell_exec,system
+	php_admin_flag[allow_url_fopen] = off
+	; Choose how the process manager will control the number of child processes. 
+	pm = dynamic 
+	pm.max_children = 75 
+	pm.start_servers = 10 
+	pm.min_spare_servers = 5 
+	pm.max_spare_servers = 20 
+	pm.process_idle_timeout = 10s
+	
+	env[HOSTNAME] = $HOSTNAME
+	env[TMP] = /tmp
+	
+	systemctl start php7.3-fpm
+	
+	sudo nano /etc/nginx/sites-enabled/default
+	# добавить
+	
+	server {
+         listen       80;
+         server_name  example.journaldev.com;
+         root         /var/www/html/wordpress;
+
+         access_log /var/log/nginx/example.journaldev.com-access.log;
+         error_log  /var/log/nginx/example.journaldev.com-error.log error;
+         index index.html index.htm index.php;
+
+         location / {
+                      try_files $uri $uri/ /index.php$is_args$args;
+         }
+
+         location ~ \.php$ {
+            fastcgi_split_path_info ^(.+\.php)(/.+)$;
+            fastcgi_pass unix:/var/run/php7.2-fpm-wordpress-site.sock;
+            fastcgi_index index.php;
+            include fastcgi.conf;
+    }
+}
+
+	sudo nginx -t
+	systemctl restart nginx
+	cd /var/www/html/wordpress
+	echo "<?php echo phpinfo();?>" > info.php
+
+
 • Установить Apache. Настроить обработку PHP. Добиться одновременной работы с Nginx.
 
 	sudo apt install apache2 -y
 	cd /etc/apache2/
-	заменить 80 на 8080
+	# заменить 80 на 8080
 	sudo nano ports.conf
-	заменить 80 на 8080
+	# заменить 80 на 8080
 	sudo nano sites-enabled/000-default.conf
 	sudo apache2 - t
+	
+	sudo systemctl stop apache2
+	sudo a2dismod php7.2
+	sudo a2dismod mpm_prefork
+	sudo a2enmod mpm_event
+	sudo apt install php-fpm
+	sudo apt install libapache2-mod-fcgid
+	sudo a2enconf php7.2-fpm
+	sudo a2enmod proxy
+	sudo a2enmod proxy_fcgi
+	cat /etc/apache2/conf-enabled/php7.2-fpm.conf
+	sudo apachectl configtest
+	sudo systemctl restart apache2
+	sudo apachectl -M | grep 'mpm'
+	sudo apachectl -M | grep 'proxy'
+	sudo nano /var/www/your_domain/info.php
+	#добавить
+	<?php phpinfo(); ?>
+	#проверить
+	http://your_domain/info.php
+	sudo rm /var/www/yourdomain.com/info.php
 
 • Настроить схему обратного прокси для Nginx (динамика - на Apache).
 
@@ -49,7 +130,6 @@
 		страница phpinfo работает
 		
 		
-		
 • Установить MySQL. Создать новую базу данных и таблицу в ней.
 
 	sudo apt install mysql-server -y
@@ -63,8 +143,51 @@
 
 •* Установить пакет phpmyadmin и запустить его веб-интерфейс для управления MySQL.
 
+	sudo apt update
+	sudo apt -y install phpmyadmin
+	sudo nano /etc/apache2/apache2.conf
+	#добавить
+	# phpMyAdmin Configuration
+	Include /etc/phpmyadmin/apache.conf
+	scp Downloads/ca-certificate.crt root@your-server-ip:/etc/phpmyadmin
+	sudo nano /etc/phpmyadmin/config.inc.php
+	#добавить
+	$i++;
+	$cfg['Servers'][$i]['host'] = 'your_database_cluster_hostname.b.db.'yourcloudserver.com';
+	$cfg['Servers'][$i]['port'] = '25060';
+	$cfg['Servers'][$i]['ssl'] = true;
+	$cfg['Servers'][$i]['ssl_ca'] = '/etc/phpmyadmin/ca-certificate.crt';
+	sudo service apache2 restart
+	http://your_domain_or_ip/phpmyadmin
+
 •* Настроить схему балансировки трафика между 
 несколькими серверами Apache на стороне Nginx с помощью модуля ngx_http_upstream_module.
 
-	скопировать команды в virtual hosts для создания нескольких серверов apache на разных портах
-	ngx_http_upstream_module инструкция в гугле
+	sudo nano /etc/nginx/sites-enabled/default
+
+	upstream backend {
+		server   192.168.0.11:8080 weight=2;
+		server   192.168.0.12:8080;
+		server   192.168.0.13:8080 weight=4;
+	}
+
+	server {
+		 listen 80;
+		 server_name example.com www.example.com;
+		 access_log /var/log/nginx/example.com.access.log main;
+			
+		 location ~* ^.+.(js|css|png|jpg|jpeg|gif|ico|woff|woff2|swf|ttf|svg|html|txt)$ {
+		  root   /var/www/html;
+		  expires 1y;
+		}
+
+		 location / {
+		  proxy_pass http://backend/;
+		  proxy_set_header Host $host;
+		  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		  proxy_set_header X-Real-IP $remote_addr;
+		  proxy_connect_timeout    120;
+		  proxy_send_timeout    120;
+		  proxy_read_timeout    180;
+		 }
+	}

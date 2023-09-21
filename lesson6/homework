@@ -8,8 +8,11 @@
 	sudo apt update
 	sudo apt install nginx
 	sudo systemctl status nginx
+	sudo apt install net-tools
+	sudo netstat -tulpn
 		# Cтартовая страница nginx, apache2
 	cd /var/www/html/
+	echo "<?php echo phpinfo();?>" > index.php
 
 		# php-fpm
 	sudo apt install php
@@ -24,10 +27,7 @@
 	
 	sudo nginx -t
 	sudo systemctl restart nginx
-	cd /var/www/html/
-	echo "<?php echo phpinfo();?>" > index.php
 	
-
 
 • Установить Apache. Настроить обработку PHP. Добиться одновременной работы с Nginx.
 

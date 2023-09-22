@@ -2,7 +2,6 @@
 
 Задание
 
-
 • Установить Nginx и настроить его на работу с PHP-FPM.
 
 	sudo apt update
@@ -13,7 +12,6 @@
 		# Cтартовая страница nginx, apache2
 	cd /var/www/html/
 	echo "<?php echo phpinfo();?>" > index.php
-
 		# php-fpm
 	sudo apt install php
 	sudo apt install php-fpm
@@ -83,13 +81,17 @@
 
 •* Установить пакет phpmyadmin и запустить его веб-интерфейс для управления MySQL.
 
-	sudo apt update
+	mysql -u root -p
+	CREATE USER 'name'@'localhost' IDENTIFIED BY 'password';
+	CREATE DATABASE db1;
+	GRANT ALL PRIVILEGES ON db1.* TO 'name'@'localhost';
+	exit
 	sudo apt install phpmyadmin
 	sudo nano /etc/apache2/apache2.conf
 		# Добавить
 	Include /etc/phpmyadmin/apache.conf
 	sudo service apache2 restart
-	http://localhost/phpmyadmin
+	http://localhost:8080/phpmyadmin
 
 •* Настроить схему балансировки трафика между 
 несколькими серверами Apache на стороне Nginx с помощью модуля ngx_http_upstream_module.

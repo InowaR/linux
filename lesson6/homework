@@ -96,20 +96,6 @@
 •* Настроить схему балансировки трафика между 
 несколькими серверами Apache на стороне Nginx с помощью модуля ngx_http_upstream_module.
 
-	sudo nano /etc/apache2/ports.conf
-		#Добавить
-	NameVirtualHost *:80
-	Listen 127.0.0.1:8080
-	
-	sudo nano /etc/apache2/sites-available/site1.com.conf
-		#Добавить
-	<VirtualHost *:8080>
-	ServerName example.com
-	DocumentRoot /var/www/site1.com/public_html
-	</VirtualHost>
-	
-	sudo a2ensite site1.com.conf
-	sudo netstat -tulnp | grep :8080
 	sudo nano /etc/nginx/nginx.conf
 		#Добавить
 	http {
@@ -120,7 +106,7 @@
 
 		server {
 		    listen 80;
-		    server_name site1.com;
+		    server_name localhost;
 
 		    location / {
 		        proxy_pass http://backend;
@@ -132,5 +118,3 @@
 	}
 	
 	sudo service nginx restart
-	
-# Перейти на сайт http://site1.com, обновить несколько раз. В логах серверов Apache будут записи о запросах с разных IP-адресов.

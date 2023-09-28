@@ -1,0 +1,14 @@
+sudo apt install docker.io docker-compose -y
+sudo docker --help
+sudo docker ps
+sudo docker ps -a
+sudo docker stop <id>
+sudo docker rm <id>
+sudo docker rmi <id>
+sudo docker search nginx
+sudo docker pull nginx
+sudo docker images
+sudo docker run -p 80:80 -d --restart always /var/www/html:/usr/share/nginx/html --name my_nginx nginx
+sudo docker exec -ti <id> bash
+sudo docker volume ls
+sudo docker volume rm <name>

@@ -1,14 +1,57 @@
-sudo apt install docker.io docker-compose -y
-sudo docker --help
-sudo docker ps
-sudo docker ps -a
-sudo docker stop <id>
-sudo docker rm <id>
-sudo docker rmi <id>
-sudo docker search nginx
-sudo docker pull nginx
-sudo docker images
-sudo docker run -p 80:80 -d --restart always /var/www/html:/usr/share/nginx/html --name my_nginx nginx
-sudo docker exec -ti <id> bash
-sudo docker volume ls
-sudo docker volume rm <name>
+Урок 7. Запуск веб-приложения из контейнеров
+Задание
+
+• Установить в виртуальную машину или VDS Docker, настроить набор контейнеров через docker compose по инструкции.
+Часть с настройкой certbot и HTTPS опустить, если у вас нет настоящего домена и белого IP.
+
+	sudo apt install docker.io docker-compose -y
+	sudo docker --help
+	sudo docker ps
+	sudo docker ps -a
+	sudo docker stop <id>
+	sudo docker rm <id>
+	sudo docker rmi <id>
+	sudo docker search nginx
+	sudo docker pull nginx
+	sudo docker images
+	sudo docker run -p 80:80 -d --restart always /var/www/html:/usr/share/nginx/html --name my_nginx nginx
+	sudo docker exec -ti <id> bash
+	sudo docker volume ls
+	sudo docker volume rm <name>
+
+
+• Запустить два контейнера, связанные одной сетью (используя документацию).
+Первый контейнер БД (например, образ mariadb:10.8), второй контейнер — phpmyadmin.
+Получить доступ к БД в первом контейнере через второй контейнер (веб-интерфейс phpmyadmin).
+
+		#Создать файл docker-compose.yml
+	version: '3.1'
+
+	services:
+	  db:
+	    image: mariadb:10.8
+	    restart: always
+	    environment:
+	      MYSQL_ROOT_PASSWORD: example_password
+	      MYSQL_DATABASE: example_db
+	      MYSQL_USER: example_user
+	      MYSQL_PASSWORD: example_password
+	    networks:
+	      - mynet
+
+	  phpmyadmin:
+	    image: phpmyadmin/phpmyadmin
+	    restart: always
+	    ports:
+	      - 8080:80
+	    environment:
+	      PMA_HOST: db
+	      MYSQL_ROOT_PASSWORD: example_password
+	    networks:
+	      - mynet
+
+	networks:
+	  mynet:
+
+		# Установить и запустить контейнеры
+	docker-compose up -d

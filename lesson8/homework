@@ -1,0 +1,76 @@
+Урок 8. Скрипты Bash
+Задание
+
+• Написать скрипт очистки директорий.
+На вход принимает путь к директории.
+Если директория существует, то удаляет в ней все файлы с расширениями .bak, .tmp, .backup.
+Если директории нет, то выводит ошибку.
+
+
+	mkdir scripts
+	cd scripts/
+	touch clean_directory.sh
+	nano clean_directory.sh
+	
+		# Добавить скрипт
+	#!/bin/bash
+	
+	# Проверка наличия аргумента - пути к директории
+	if [ -z "$1" ]; then
+	    echo "Ошибка: Путь к директории не указан"
+	    exit 1
+	fi
+
+	# Проверка существования директории
+	if [ ! -d "$1" ]; then
+	    echo "Ошибка: Директория не существует"
+	    exit 1
+	fi
+
+	# Удаление файлов с расширениями .bak, .tmp, .backup
+	find "$1" -type f \( -name "*.bak" -o -name "*.tmp" -o -name "*.backup" \) -del>
+
+	echo "Очистка завершена"
+
+		# Проверка скрипта
+	mkdir check
+	touch check/1.bak
+	touch check/2.tmp
+	touch check/3.backup
+	touch check/4.txt
+	bash clean_directory.sh check/
+	cd check/
+	ls
+	
+• Создать скрипт ownersort.sh, который в заданной папке копирует файлы в директории, названные по имени владельца каждого файла.
+Учтите, что файл должен принадлежать соответствующему владельцу.
+
+
+	touch ownersort.sh
+	nano ownersort.sh
+	
+		# Добавить скрипт
+	#!/bin/bash
+
+	# Перебираем все файлы в заданной папке
+	for file in ./old/*; do
+	    # Получаем имя владельца файла
+	    owner=$(stat -c '%U' "$file")
+	    # Проверяем, что имя файла совпадает с именем владельца
+	    if [ "$(basename "$file")" = "$owner" ]; then
+		# Создаем директорию с именем владельца, если ее нет
+		mkdir -p "./new/$owner"
+		# Копируем файл в директорию с именем владельца
+		cp "$file" "./new/$owner/"
+	    fi
+	done
+	
+		# Проверка скрипта
+	mkdir old
+	cd old
+	touch file
+	touch georgiy
+	ll
+	cd ..
+	chmod +x ownersort.sh
+	./ownersort.sh
